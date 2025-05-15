@@ -1,11 +1,11 @@
-# 파일명: taxee_uploader.py
+
 import streamlit as st
 import pandas as pd
 import io
+import re
 import openpyxl
 
 st.set_page_config(page_title="Taxee 리포트 업로드", layout="centered")
-
 st.title("📤 세무자료 업로드 & 자동 리포트")
 
 # 1. 고객명, 기준월 입력
@@ -15,10 +15,19 @@ with st.form("input_form"):
         name = st.text_input("고객명")
     with col2:
         month = st.text_input("자료 기준월 (예: 2025-04)")
+
     submit = st.form_submit_button("입력 완료")
 
-# 2. 입력 완료 후 업로드 활성화
-if submit and name and month:
+# 2. 기준월 형식 검증 (yyyy-mm)
+month_valid = False
+if month:
+    if re.match(r"^\d{4}-(0[1-9]|1[0-2])$", month):
+        month_valid = True
+    else:
+        st.error("❌ 자료 기준월은 yyyy-mm 형식으로 입력해 주세요. 예: 2025-04")
+
+# 3. 입력 완료 후 업로드 활성화
+if submit and name and month_valid:
     st.success("✅ 입력 완료! 아래에서 엑셀 파일을 업로드해 주세요.")
     uploaded = st.file_uploader("엑셀 파일 업로드", type="xlsx")
 
@@ -55,4 +64,4 @@ if submit and name and month:
         except Exception as e:
             st.error(f"⚠️ 처리 중 오류 발생: {e}")
 else:
-    st.info("고객명과 기준월을 먼저 입력해 주세요.")
+    st.info("고객명과 기준월을 먼저 정확히 입력해 주세요.")
