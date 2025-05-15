@@ -33,10 +33,20 @@ if submit and name and month_valid:
 
     if uploaded:
         try:
-            df = pd.read_excel(uploaded)
-            df = df.iloc[:-1]  # 마지막 합계 행 제외
+            # 0행 + 1행을 병합헤더로 처리
+            df_raw = pd.read_excel(uploaded, header=None)
+            merged_header = []
+            for i in range(len(df_raw.columns)):
+                top = str(df_raw.iloc[0, i]).strip() if pd.notna(df_raw.iloc[0, i]) else ""
+                bottom = str(df_raw.iloc[1, i]).strip() if pd.notna(df_raw.iloc[1, i]) else ""
+                merged_header.append(bottom if bottom else top)
+            df = df_raw.iloc[2:].copy()
+            df.columns = merged_header
 
-            # 열 제한: '학자금수당'까지만
+            # 마지막 합계 행 제외
+            df = df.iloc[:-1]
+
+            # 학자금수당까지만 추출
             if "학자금수당" in df.columns:
                 last_col = df.columns.get_loc("학자금수당") + 1
                 df = df.iloc[:, :last_col]
@@ -53,7 +63,6 @@ if submit and name and month_valid:
 
             st.dataframe(df)
 
-            # 다운로드 버튼
             st.download_button(
                 label="📥 정리된 리포트 다운로드",
                 data=output,
