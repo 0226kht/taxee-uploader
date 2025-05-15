@@ -29,7 +29,7 @@ if month:
 # 3. 입력 완료 후 업로드 활성화
 if submit and name and month_valid:
     st.success("✅ 입력 완료! 아래에서 엑셀 파일을 업로드해 주세요.")
-    uploaded = st.file_uploader("엑셀 파일 업로드", type="xlsx")
+    uploaded = st.file_uploader("엑셀 파일 업로드", type=["xls", "xlsx"])
 
     if uploaded:
         try:
